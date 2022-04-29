@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -195,14 +196,18 @@ namespace GCard_UI
                 } },
                 new SubCommand(){ name="Sound",value=9,subCommands=new SubCommand[]{ } },
                 new SubCommand(){ name="SoundStop",value=9|128,subCommands=new SubCommand[]{ } },
+                new SubCommand(){ name="SoundAsset",value=9|64,final=true,subCommands=new SubCommand[]{
+                    new SubCommand(){ name="asset",size=ActionSize.U8,type=ActionType.Input},
+                    new SubCommand(){ name="repeat",size=ActionSize.Bool,type=ActionType.Input},
+                } },
                 new SubCommand(){ name="Set Asset",value=10,final=true,subCommands=new SubCommand[]
                 {
                     new SubCommand(){ name="asset",size=ActionSize.U8,type=ActionType.Input},
                     new SubCommand(){name="data",size=ActionSize.Code,type=ActionType.Input},
                 } },
-                new SubCommand(){ name="Redraw",value=11,final=true,subCommands=new SubCommand[]
+                new SubCommand(){ name="Redraw",value=13,final=true,subCommands=new SubCommand[]
                 {
-                    
+
                 } },
                 new SubCommand(){ name="Test",value=254,subCommands=new SubCommand[]{ } },
             }
@@ -272,9 +277,64 @@ namespace GCard_UI
                 {
                     var ci = (Code_input)_value;
                     string value = ci.parsedCode();
-                    
+
 
                     return value;
+                }
+                if (size == ActionSize.Audio)
+                {
+                    string value = (string)_value;
+                    value = value.Replace("\n", " ");
+                    value = value.Replace("\r", " ");
+                    value = value.Replace("\t", " ");
+                    value = value.Replace(",", " ");
+                    value = value.Replace("_", " ");
+                    while (value.Contains("  "))
+                        value = value.Replace("  ", " ");
+
+                    string[] array = Enum.GetNames(typeof(Notes));
+                    var values = Enum.GetValues(typeof(Notes));
+                    value = value.Trim();
+                    List<string> data = value.Split(' ').ToList();
+
+                    for (int i = 0; i < data.Count; i+=3)
+                    {
+                        string normalised = data[i].ToUpper();
+                        for(int j = 0; j < 8; j++)
+                        {
+                            normalised = normalised.Replace($"{j}S", $"S{j}");
+                        }
+                        if (!array.Contains(normalised))
+                        {
+                            MessageBox.Show("Invalid input: "+normalised);
+                            //return "";
+                        }
+                        else
+                        {
+                            data[i] = ValueToString(ActionSize.U16, (int)values.GetValue(Array.IndexOf(array, normalised)));
+                            try
+                            {
+                                data[i + 1] = ValueToString(ActionSize.U16, Convert.ToInt32(data[i + 1]));
+                                data.Insert(i + 2, "0");
+                            }
+                            catch
+                            {
+                                data.Insert(i + 1, ValueToString(ActionSize.U16, 300 ));
+                                data.Insert(i + 2, "0");
+                            }
+                            //data[i + 2] = ValueToString(ActionSize.Bool, Convert.ToInt32(data[i+2])==1);
+                        }
+                        
+                    }
+                    value = "";
+                    foreach (var item in data)
+                    {
+                        value += item+" ";
+                    }
+                    while (value.Contains("  "))
+                        value = value.Replace("  ", " ");
+                    value = value.Trim();
+                    return ValueToString(ActionSize.U16, Convert.ToInt32(value.Split(' ').Length))+" " + value;
                 }
             }
             catch
@@ -324,7 +384,7 @@ namespace GCard_UI
     }
     public enum ActionSize
     {
-        U8, U16, Location, Color, U32, Rect, Size, String, Bool, Code
+        U8, U16, Location, Color, U32, Rect, Size, String, Bool, Code, Audio
     }
 
     public enum ActionStatus
@@ -380,5 +440,126 @@ namespace GCard_UI
         {
             value = c;
         }
+    }
+
+    public enum Notes
+    {
+        REST = 0,
+        R = 0,
+        C0 = 16,
+        CS0 = 17,
+        D0 = 18,
+        DS0 = 19,
+        E0 = 20,
+        F0 = 21,
+        FS0 = 23,
+        G0 = 24,
+        GS0 = 25,
+        A0 = 27,
+        AS0 = 29,
+        B0 = 30,
+        C1 = 32,
+        CS1 = 34,
+        D1 = 36,
+        DS1 = 38,
+        E1 = 41,
+        F1 = 43,
+        FS1 = 46,
+        G1 = 49,
+        GS1 = 51,
+        A1 = 55,
+        AS1 = 58,
+        B1 = 61,
+        C2 = 65,
+        CS2 = 69,
+        D2 = 73,
+        DS2 = 77,
+        E2 = 82,
+        F2 = 87,
+        FS2 = 92,
+        G2 = 98,
+        GS2 = 103,
+        A2 = 110,
+        AS2 = 116,
+        B2 = 123,
+        C3 = 130,
+        CS3 = 138,
+        D3 = 146,
+        DS3 = 155,
+        E3 = 164,
+        F3 = 174,
+        FS3 = 185,
+        G3 = 196,
+        GS3 = 207,
+        A3F = 208,
+        A3 = 220,
+        AS3 = 233,
+        B3F = 233,
+        B3 = 246,
+        C4 = 261,
+        CS4 = 277,
+        D4 = 293,
+        DS4 = 311,
+        E4F = 311,
+        E4 = 329,
+        F4 = 349,
+        FS4 = 369,
+        G4 = 392,
+        GS4 = 415,
+        A4 = 440,
+        AS4 = 466,
+        B4F = 466,
+        B4 = 493,
+        C5 = 523,
+        CS5 = 554,
+        D5 = 587,
+        DS5 = 622,
+        E5F = 622,
+        E5 = 659,
+        F5 = 698,
+        FS5 = 739,
+        G5 = 783,
+        GS5 = 830,
+        A5F = 831,
+        A4F = 415,
+        A5 = 880,
+        AS5 = 932,
+        B5 = 987,
+        C6 = 1046,
+        CS6 = 1108,
+        D6 = 1174,
+        DS6 = 1244,
+        E6 = 1318,
+        F6 = 1396,
+        FS6 = 1479,
+        G6 = 1567,
+        GS6 = 1661,
+        A6 = 1760,
+        AS6 = 1864,
+        B6 = 1975,
+        C7 = 2093,
+        CS7 = 2217,
+        D7 = 2349,
+        DS7 = 2489,
+        E7 = 2637,
+        F7 = 2793,
+        FS7 = 2959,
+        G7 = 3135,
+        GS7 = 3322,
+        A7 = 3520,
+        AS7 = 3729,
+        B7 = 3951,
+        C8 = 4186,
+        CS8 = 4434,
+        D8 = 4698,
+        DS8 = 4978,
+        E8 = 5274,
+        F8 = 5587,
+        FS8 = 5919,
+        G8 = 6271,
+        GS8 = 6644,
+        A8 = 7040,
+        AS8 = 7458,
+        B8 = 7902
     }
 }

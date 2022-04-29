@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
@@ -26,6 +27,18 @@ namespace GCard_UI
                 listBox1.Items.Add(i);
             }
             listBox1.SelectedIndex = 0;
+            try
+            {
+                var lines = File.ReadAllLines("saved_cmds.dat");
+                foreach (var item in lines)
+                {
+                    listBox4.Items.Add(item);
+                }
+            }
+            catch
+            {
+
+            }
         }
 
         private void comboBox1_MouseClick(object sender, MouseEventArgs e)
@@ -69,9 +82,10 @@ namespace GCard_UI
             string cmd_txt = "";
             cmd_txt = argument1.GetCommandRec();
             cmd_txt = ResolveInsertAfter(cmd_txt);
-            cmd_txt = cmd_txt.Replace("  ", " ");
+            while (cmd_txt.Contains("  "))
+                cmd_txt = cmd_txt.Replace("  ", " ");
 
-            if(textBox1.Text != cmd_txt)
+            if (textBox1.Text != cmd_txt)
             {
                 textBox1.Text = cmd_txt;
             }
@@ -108,7 +122,7 @@ namespace GCard_UI
             {
 
             }
-            
+
         }
 
         public string ResolveInsertAfter(string inp)
@@ -119,38 +133,12 @@ namespace GCard_UI
 
         private void button2_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string rawData = "";
-                List<byte> bytes = new List<byte>();
-                foreach (var item in textBox1.Text.Trim().Split(' '))
-                {
-                    bytes.Add(Convert.ToByte(item));
-                }
-                ReadBuffer.Clear();
-                progressBar1.Minimum = 0;
-                progressBar1.Maximum = bytes.Count();
-                for(int i = 0; i < bytes.Count(); i += 512)
-                {
-                    serialPort1.Write(bytes.ToArray(), i, Math.Min(bytes.Count()-i,512));
-                    progressBar1.Value = i;
-                }
-                
-                int status = ConsumeRBF();
-                if ((ActionStatus)status != ActionStatus.STATUS_OK)
-                {
-                    MessageBox.Show(Enum.GetNames(typeof(ActionStatus))[status]);
-                }
-            }
-            catch
-            {
-
-            }
+            SendCommand(textBox1.Text,true);
         }
 
         public enum ObjectType
         {
-            ObjType_RECTANGLE =1, ObjType_TEXT =2, ObjType_CIRCLE =3 ,ObjType_LINE =4,
+            ObjType_RECTANGLE = 1, ObjType_TEXT = 2, ObjType_CIRCLE = 3, ObjType_LINE = 4,
             NULL = -1
         }
 
@@ -161,7 +149,7 @@ namespace GCard_UI
             public Color8b color;
             public bool visible;
         }
-        public VObject[] objects = new VObject[128]; 
+        public VObject[] objects = new VObject[128];
 
         private void button3_Click(object sender, EventArgs e)
         {
@@ -239,7 +227,7 @@ namespace GCard_UI
             }
             catch { }
         }
-        
+
         public void AddByteRBF(byte[] b)
         {
             ReadBuffer.AddRange(b);
@@ -248,7 +236,7 @@ namespace GCard_UI
 
         public byte ConsumeRBF()
         {
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 if (ReadBuffer.Count < 1)
                 {
@@ -258,9 +246,9 @@ namespace GCard_UI
                 {
                     break;
                 }
-                
+
             }
-            
+
             byte b = ReadBuffer[0];
             ReadBuffer.RemoveAt(0);
             return b;
@@ -268,27 +256,14 @@ namespace GCard_UI
 
         private void button6_Click(object sender, EventArgs e)
         {
-            try
-            {
-                ReadBuffer.Clear();
-                serialPort1.Write(new byte[] { 4, 3 }, 0, 2);
-                int status = ConsumeRBF();
-                if ((ActionStatus)status != ActionStatus.STATUS_OK)
-                {
-                    MessageBox.Show(Enum.GetNames(typeof(ActionStatus))[status]);
-                }
-            }
-            catch
-            {
-
-            }
+            SendCommand("4 3");
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
-            var ci = new Code_input(false);
+            var ci = new Code_input(0);
             ci.ShowDialog();
-            string value = ci.parsedCode(false,true);
+            string value = ci.parsedCode(false, true);
             if (value == null) return;
 
             if (value.Length > 0)
@@ -317,10 +292,115 @@ namespace GCard_UI
             if (gen.isUpload)
             {
                 ((ComboBox)argument1.Controls[0].Controls[0]).SelectedIndex = 10;
-                var ci = new Code_input("c"+ Generator.ConvertToString(gen.saved_bytes,Generator.StringEncoding.HEX));
+                var ci = new Code_input("c" + Generator.ConvertToString(gen.saved_bytes, Generator.StringEncoding.HEX));
                 argument1.next_arg.next_arg.dvalue = ci.code;
                 argument1.next_arg.next_arg.value = Actions.ValueToString(ActionSize.Code, ci);
             }
+        }
+
+        private void sendToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string text = (string)listBox3.SelectedItem;
+            text = text.Split(':')[1];
+            SendCommand(text);
+        }
+
+        public void SendCommand(string text, bool addToLog=false)
+        {
+            try
+            {
+                while (text.Contains("  "))
+                    text = text.Replace("  ", " ");
+
+                if (addToLog)
+                {
+                    listBox3.Items.Insert(0, $"{((ComboBox)argument1.Controls[0].Controls[0]).SelectedItem}: {textBox1.Text.Trim()}");
+                }
+
+                List<byte> bytes = new List<byte>();
+                foreach (var item in text.Trim().Split(' '))
+                {
+                    bytes.Add(Convert.ToByte(item));
+                }
+                ReadBuffer.Clear();
+                progressBar1.Minimum = 0;
+                progressBar1.Maximum = bytes.Count();
+                for (int i = 0; i < bytes.Count(); i += 512)
+                {
+                    serialPort1.Write(bytes.ToArray(), i, Math.Min(bytes.Count() - i, 512));
+                    progressBar1.Value = i;
+                }
+
+                int status = ConsumeRBF();
+                if ((ActionStatus)status != ActionStatus.STATUS_OK)
+                {
+                    MessageBox.Show(Enum.GetNames(typeof(ActionStatus))[status]);
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show("Error while sending: " + ex);
+            }
+            
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listBox4.Items.Add(listBox3.SelectedItem);
+            List<string> lines = new List<string>();
+            foreach (var item in listBox4.Items)
+            {
+                lines.Add((string)item);
+            }
+            File.WriteAllLines("saved_cmds.dat", lines);
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            if(listBox3.SelectedIndex < 0)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            string text = (string)listBox4.SelectedItem;
+            text = text.Split(':')[1];
+            SendCommand(text);
+        }
+
+        private void contextCmdSaved_Opening(object sender, CancelEventArgs e)
+        {
+            if (listBox4.SelectedIndex < 0)
+            {
+                e.Cancel = true;
+            }
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string text = (string)listBox3.SelectedItem;
+            text = text.Split(':')[1];
+            Clipboard.SetText(text);
+        }
+
+        private void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string text = (string)listBox4.SelectedItem;
+            text = text.Split(':')[1];
+            Clipboard.SetText(text);
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            listBox4.Items.RemoveAt(listBox4.SelectedIndex);
+            List<string> lines = new List<string>();
+            foreach (var item in listBox4.Items)
+            {
+                lines.Add((string)item);
+            }
+            File.WriteAllLines("saved_cmds.dat", lines);
         }
     }
 }

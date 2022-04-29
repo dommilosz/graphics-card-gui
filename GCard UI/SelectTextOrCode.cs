@@ -15,20 +15,15 @@ namespace GCard_UI
         public SelectTextOrCode()
         {
             InitializeComponent();
+            comboBox1.SelectedIndex = 0;
         }
 
-        public bool isText = false;
+        public int type = 0;
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click_1(object sender, EventArgs e)
         {
-            isText = true;
-            this.Close();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            isText = false;
-            this.Close();
+            type = comboBox1.SelectedIndex;
+            this.Close(); 
         }
     }
 }

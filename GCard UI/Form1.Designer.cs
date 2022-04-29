@@ -33,6 +33,7 @@ namespace GCard_UI
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.serialPort1 = new System.IO.Ports.SerialPort(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button8 = new System.Windows.Forms.Button();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.button7 = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
@@ -45,7 +46,6 @@ namespace GCard_UI
             this.label1 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
-            this.argument1 = new GCard_UI.Argument();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.button4 = new System.Windows.Forms.Button();
             this.listBox2 = new System.Windows.Forms.ListBox();
@@ -53,12 +53,28 @@ namespace GCard_UI
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.button5 = new System.Windows.Forms.Button();
-            this.button8 = new System.Windows.Forms.Button();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.listBox3 = new System.Windows.Forms.ListBox();
+            this.contextCmdLog = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.sendToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.argument1 = new GCard_UI.Argument();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
+            this.listBox4 = new System.Windows.Forms.ListBox();
+            this.contextCmdSaved = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            this.contextCmdLog.SuspendLayout();
+            this.tabPage5.SuspendLayout();
+            this.contextCmdSaved.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
@@ -84,6 +100,16 @@ namespace GCard_UI
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(800, 30);
             this.panel1.TabIndex = 8;
+            // 
+            // button8
+            // 
+            this.button8.Location = new System.Drawing.Point(627, 4);
+            this.button8.Name = "button8";
+            this.button8.Size = new System.Drawing.Size(75, 23);
+            this.button8.TabIndex = 10;
+            this.button8.Text = "Image";
+            this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
             // progressBar1
             // 
@@ -137,6 +163,8 @@ namespace GCard_UI
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tabPage4);
+            this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 30);
             this.tabControl1.Name = "tabControl1";
@@ -204,14 +232,6 @@ namespace GCard_UI
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(120, 95);
             this.listBox1.TabIndex = 10;
-            // 
-            // argument1
-            // 
-            this.argument1.Location = new System.Drawing.Point(3, 25);
-            this.argument1.Name = "argument1";
-            this.argument1.Size = new System.Drawing.Size(150, 212);
-            this.argument1.SubCommand = null;
-            this.argument1.TabIndex = 9;
             // 
             // tabPage2
             // 
@@ -290,15 +310,117 @@ namespace GCard_UI
             this.button5.UseVisualStyleBackColor = true;
             this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
-            // button8
+            // tabPage4
             // 
-            this.button8.Location = new System.Drawing.Point(627, 4);
-            this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(75, 23);
-            this.button8.TabIndex = 10;
-            this.button8.Text = "Generator";
-            this.button8.UseVisualStyleBackColor = true;
-            this.button8.Click += new System.EventHandler(this.button8_Click);
+            this.tabPage4.Controls.Add(this.listBox3);
+            this.tabPage4.Location = new System.Drawing.Point(4, 22);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage4.Size = new System.Drawing.Size(792, 394);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "Command Log";
+            this.tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // listBox3
+            // 
+            this.listBox3.ContextMenuStrip = this.contextCmdLog;
+            this.listBox3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBox3.FormattingEnabled = true;
+            this.listBox3.Location = new System.Drawing.Point(3, 3);
+            this.listBox3.Name = "listBox3";
+            this.listBox3.Size = new System.Drawing.Size(786, 388);
+            this.listBox3.TabIndex = 0;
+            // 
+            // contextCmdLog
+            // 
+            this.contextCmdLog.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sendToolStripMenuItem,
+            this.saveToolStripMenuItem,
+            this.copyToolStripMenuItem});
+            this.contextCmdLog.Name = "contextMenuStrip1";
+            this.contextCmdLog.Size = new System.Drawing.Size(113, 70);
+            this.contextCmdLog.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // sendToolStripMenuItem
+            // 
+            this.sendToolStripMenuItem.Name = "sendToolStripMenuItem";
+            this.sendToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.sendToolStripMenuItem.Text = "Resend";
+            this.sendToolStripMenuItem.Click += new System.EventHandler(this.sendToolStripMenuItem_Click);
+            // 
+            // saveToolStripMenuItem
+            // 
+            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
+            // 
+            // argument1
+            // 
+            this.argument1.Location = new System.Drawing.Point(3, 25);
+            this.argument1.Name = "argument1";
+            this.argument1.Size = new System.Drawing.Size(150, 212);
+            this.argument1.SubCommand = null;
+            this.argument1.TabIndex = 9;
+            // 
+            // tabPage5
+            // 
+            this.tabPage5.Controls.Add(this.listBox4);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(792, 394);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "Saved Commands";
+            this.tabPage5.UseVisualStyleBackColor = true;
+            // 
+            // listBox4
+            // 
+            this.listBox4.ContextMenuStrip = this.contextCmdSaved;
+            this.listBox4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBox4.FormattingEnabled = true;
+            this.listBox4.Location = new System.Drawing.Point(3, 3);
+            this.listBox4.Name = "listBox4";
+            this.listBox4.Size = new System.Drawing.Size(786, 388);
+            this.listBox4.TabIndex = 1;
+            // 
+            // contextCmdSaved
+            // 
+            this.contextCmdSaved.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1,
+            this.exportToolStripMenuItem,
+            this.deleteToolStripMenuItem});
+            this.contextCmdSaved.Name = "contextMenuStrip1";
+            this.contextCmdSaved.Size = new System.Drawing.Size(113, 70);
+            this.contextCmdSaved.Opening += new System.ComponentModel.CancelEventHandler(this.contextCmdSaved_Opening);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.toolStripMenuItem1.Text = "Resend";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
+            // exportToolStripMenuItem
+            // 
+            this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportToolStripMenuItem.Text = "Copy";
+            this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
+            // 
+            // copyToolStripMenuItem
+            // 
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.copyToolStripMenuItem.Text = "Copy";
+            this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -316,6 +438,10 @@ namespace GCard_UI
             this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.contextCmdLog.ResumeLayout(false);
+            this.tabPage5.ResumeLayout(false);
+            this.contextCmdSaved.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -346,6 +472,18 @@ namespace GCard_UI
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Button button8;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.ListBox listBox3;
+        private System.Windows.Forms.ContextMenuStrip contextCmdLog;
+        private System.Windows.Forms.ToolStripMenuItem sendToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.TabPage tabPage5;
+        private System.Windows.Forms.ListBox listBox4;
+        private System.Windows.Forms.ContextMenuStrip contextCmdSaved;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
     }
 }
 

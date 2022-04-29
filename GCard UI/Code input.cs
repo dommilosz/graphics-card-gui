@@ -24,7 +24,7 @@ namespace GCard_UI
             {
                 return "";
             }
-            if (!isText)
+            if (type == 0)
             {
                 value = value.Replace("\r", " ");
                 value = value.Replace("\n", " ");
@@ -63,7 +63,7 @@ namespace GCard_UI
                     }
                     return v2;
                 }
-                else
+                else if (type == 1)
                 {
                     string v2 = "";
 
@@ -79,9 +79,13 @@ namespace GCard_UI
 
                 
             }
-            if (isText)
+            if (type == 1)
             {
                 return Actions.ValueToString(ActionSize.String, value);
+            }
+            else if (type == 2)
+            {
+                return Actions.ValueToString(ActionSize.Audio, value);
             }
             return "";
         }
@@ -89,60 +93,40 @@ namespace GCard_UI
         {
             InitializeComponent();
             textBox1.Text = code;
+            comboBox1.SelectedIndex = 0;
         }
         public Code_input(string value)
         {
             InitializeComponent();
             code = value;
+            comboBox1.SelectedIndex = 0;
             if (code.Length >= 1)
             {
-                if (code[0] == 'c')
-                {
-                    isText = false;
-                }
-                if (code[0] == 't')
-                {
-                    isText = true;
-                }
+                type = Convert.ToInt32(""+code[0]);
+                comboBox1.SelectedIndex = type;
                 textBox1.Text = code.Substring(1);
             }
             else
             {
                 var stoc = new SelectTextOrCode();
                 stoc.ShowDialog();
-                isText = stoc.isText;
+                type = stoc.type;
+                comboBox1.SelectedIndex = type;
                 textBox1.Text = code;
             }
-            button3.Text = isText ? "Change To CODE" : "Change To TEXT";
         }
 
-        public Code_input(bool text)
+        public Code_input(int type)
         {
             InitializeComponent();
-            code = "";
-            if (code.Length >= 1)
-            {
-                if (code[0] == 'c')
-                {
-                    isText = false;
-                }
-                if (code[0] == 't')
-                {
-                    isText = true;
-                }
-                textBox1.Text = code.Substring(1);
-            }
-            else
-            {
-                isText = text;
-                textBox1.Text = code;
-            }
-            button3.Text = isText ? "Change To CODE" : "Change To TEXT";
+            this.type = type;
+            comboBox1.SelectedIndex = type;
+            textBox1.Text = code;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            code = (isText?"t":"c")+textBox1.Text;
+            code = type+textBox1.Text;
             this.Close();
         }
 
@@ -151,38 +135,7 @@ namespace GCard_UI
             this.Close();
         }
 
-        bool isText = false;
-        private void button3_Click(object sender, EventArgs e)
-        {
-            isText = !isText;
-            button3.Text = isText ? "Change To CODE" : "Change To TEXT";
-
-            string a = "";
-
-            if (isText)
-            {
-                foreach (var item in textBox1.Text.Split(' '))
-                {
-                    try
-                    {
-                        a += (char)(Convert.ToInt32(item));
-                    }
-                    catch { }
-                }
-            }
-            if (!isText)
-            {
-                try
-                {
-                    foreach (var item in textBox1.Text)
-                    {
-                        a += (int)item + " ";
-                    }
-                }
-                catch { }
-            }
-            textBox1.Text = a;
-        }
+        int type = 0;
 
         private void button4_Click(object sender, EventArgs e)
         {
@@ -244,6 +197,12 @@ namespace GCard_UI
                 a += lastVal.ToString("X") + " " + ((_i >> 8).ToString("X") + " " + (_i & 0xFF).ToString("X")) + " " + ((_j >> 8).ToString("X") + " " + (_j & 0xFF).ToString("X")) + " ";
                 textBox1.Text = a;
             }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            type = comboBox1.SelectedIndex;
+            textBox1.Text = "";
         }
     }
 }

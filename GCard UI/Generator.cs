@@ -8,6 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using u8 = System.UInt32;
+using u16 = System.UInt32;
+using u32 = System.UInt32;
+
 namespace GCard_UI
 {
     public partial class Generator : Form
@@ -424,144 +428,162 @@ namespace GCard_UI
             return sb.ToString();
         }
 
-        public static Image GeneratePreview(byte[] bytes, int w, int h)
+        public static Image GeneratePreview(byte[] bytes, int _w, int _h)
         {
             if (bytes == null) return null;
-            Bitmap bmp = new Bitmap(w, h);
-            byte compressed = bytes[0];
+            u8 img_asset = 1;
+            u16 w = (uint)_w;
+            u16 h = (uint)_h;
+            Bitmap bmp = new Bitmap(_w, _h);
+            u8 x = 0;
+            u8 y = 0;
+            u8 Canvas = 0;
 
-            int ReadAsset(int index)
+            u8 ReadAsset(u8 asset,u32 index)
             {
                 if (index >= bytes.Length) return 0;
                 return bytes[index];
             }
-            int Read2Asset(int index)
+            u16 Read2Asset(u8 asset,u32 index)
             {
                 if (index + 1 >= bytes.Length) return 0;
-                return bytes[index] << 8 | bytes[index + 1];
+                return (uint)(bytes[index] << 8 | bytes[index + 1]);
             }
-            int Read3Asset(int index)
+            u32 Read3Asset(u8 asset,u32 index)
             {
                 if (index + 2 >= bytes.Length) return 0;
-                return bytes[index] << 16 | bytes[index + 1] << 8 | bytes[index + 2];
+                return (uint)(bytes[index] << 16 | bytes[index + 1] << 8 | bytes[index + 2]);
             }
+
+            void DrawPoint(u8 c, u16 __x, u16 __y, u8 color){
+                bmp.SetPixel((int)__x, (int)__y, (new Color8b((byte)color)).color);
+            }
+
+            u8 compressed = ReadAsset(img_asset, 0);
 
             bool rotated = false;
             if (compressed >> 7 == 1)
             {
-                compressed = Convert.ToByte(compressed & 0x7F);
+                compressed = compressed & 0x7F;
                 rotated = true;
             }
 
             if (compressed == 0)
             {
-                for (int i = 0; i < w * h; i++)
+                for (u32 i = 0; i < w * h; i++)
                 {
-                    int b = ReadAsset(i + 1);
-                    int _x = i / h;
-                    int _y = i % h;
+                    u8 b = ReadAsset(img_asset, i + 1);
+                    u16 _x = i / h;
+                    u16 _y = i % h;
                     if (rotated)
                     {
                         _y = h - (i / w) - 1;
                         _x = i % w;
                     }
-                    bmp.SetPixel(_x, _y, new Color8b(Convert.ToByte(b)).color);
+                    //&Canvas here
+                    DrawPoint(Canvas, _x + x, _y + y, b);
                 }
             }
             else if (compressed == 1)
             {
-                int tmp_color;
-                int tmp_next;
-                int asset_index = 1;
+                u8 tmp_color;
+                u32 tmp_next;
+                u32 asset_index = 1;
 
-                tmp_color = ReadAsset(asset_index);
+                tmp_color = ReadAsset(img_asset, asset_index);
                 asset_index += 1;
-                tmp_next = Read3Asset(asset_index);
+                tmp_next = Read3Asset(img_asset, asset_index);
                 asset_index += 3;
 
-                for (int i = 0; i < w * h; i++)
+                for (u32 i = 0; i < w * h; i++)
                 {
                     if (i > tmp_next)
                     {
-                        tmp_color = ReadAsset(asset_index);
+                        tmp_color = ReadAsset(img_asset, asset_index);
                         asset_index += 1;
-                        tmp_next = Read3Asset(asset_index);
+                        tmp_next = Read3Asset(img_asset, asset_index);
                         asset_index += 3;
                     }
 
-                    int _x = i / h;
-                    int _y = i % h;
+                    u16 _x = i / h;
+                    u16 _y = i % h;
                     if (rotated)
                     {
                         _y = h - (i / w) - 1;
                         _x = i % w;
                     }
-                    bmp.SetPixel(_x, _y, new Color8b(Convert.ToByte(tmp_color)).color);
+                    //&Canvas here
+                    DrawPoint(Canvas, _x + x, _y + y, tmp_color);
                 }
             }
             else if (compressed == 2)
             {
-                int tmp_color;
-                int tmp_next;
-                int asset_index = 1;
+                u8 tmp_color;
+                u16 tmp_next;
+                u32 asset_index = 1;
 
-                tmp_color = ReadAsset(asset_index);
+                tmp_color = ReadAsset(img_asset, asset_index);
                 asset_index += 1;
-                tmp_next = Read2Asset(asset_index);
+                tmp_next = Read2Asset(img_asset, asset_index);
                 asset_index += 2;
 
-                for (int i = 0; i < w * h; i++)
+                for (u32 i = 0; i < w * h; i++)
                 {
                     if (i > tmp_next)
                     {
-                        tmp_color = ReadAsset(asset_index);
+                        tmp_color = ReadAsset(img_asset, asset_index);
                         asset_index += 1;
-                        tmp_next = Read2Asset(asset_index);
+                        tmp_next = Read2Asset(img_asset, asset_index);
                         asset_index += 2;
                     }
-                    int _x = i / h;
-                    int _y = i % h;
+                    u16 _x = i / h;
+                    u16 _y = i % h;
                     if (rotated)
                     {
                         _y = h - (i / w) - 1;
                         _x = i % w;
                     }
-                    bmp.SetPixel(_x, _y, new Color8b(Convert.ToByte(tmp_color)).color);
+                    //&Canvas here
+                    DrawPoint(Canvas, _x + x, _y + y, tmp_color);
                 }
             }
             else if (compressed == 3)
             {
-                int tmp_color;
-                int tmp_next;
-                int asset_index = 1;
+                u32 tmp_color;
+                u32 tmp_next;
+                u32 asset_index = 1;
 
-                int colors_loc = Read3Asset(asset_index);
+                u32 colors_loc = Read3Asset(img_asset, asset_index);
                 asset_index += 3;
 
-                tmp_next = Read3Asset(asset_index);
+                tmp_next = Read3Asset(img_asset, asset_index);
                 tmp_color = tmp_next >> 18;
                 tmp_next = tmp_next & 0x03FFFF;
                 asset_index += 3;
-                int length = w * h;
+                u32 length = w * h;
 
-                for (int i = 0; i < length; i++)
+                u8 read_color = 0;
+                read_color = ReadAsset(img_asset, colors_loc + tmp_color);
+                for (u32 i = 0; i < length; i++)
                 {
                     if (i > tmp_next)
                     {
-                        tmp_next = Read3Asset(asset_index);
+                        tmp_next = Read3Asset(img_asset, asset_index);
                         tmp_color = tmp_next >> 18;
                         tmp_next = tmp_next & 0x03FFFF;
+                        read_color = ReadAsset(img_asset, colors_loc + tmp_color);
                         asset_index += 3;
                     }
 
-                    int _x = i / h;
-                    int _y = i % h;
+                    u16 _x = i / h;
+                    u16 _y = i % h;
                     if (rotated)
                     {
                         _y = h - (i / w) - 1;
                         _x = i % w;
                     }
-                    bmp.SetPixel(_x, _y, new Color8b(Convert.ToByte(ReadAsset(colors_loc + tmp_color))).color);
+                    //&Canvas here
+                    DrawPoint(Canvas, _x + x, _y + y, read_color);
                 }
             }
             return bmp;
@@ -569,7 +591,7 @@ namespace GCard_UI
 
         private void button3_Click(object sender, EventArgs e)
         {
-            if (textBox1.Text.Length<=0) return;
+            if (textBox1.Text.Length <= 0) return;
             Clipboard.SetText(textBox1.Text);
         }
 
